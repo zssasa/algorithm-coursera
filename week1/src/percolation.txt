@@ -1,0 +1,134 @@
+import random
+import time
+
+class testa:
+    def __init__(self, grid_lado):
+        self.lado = grid_lado
+        self.size = self.lado * self.lado
+        self.grid = []
+        self.estado = []
+        for a in range(self.size):
+            self.grid.append(a)
+            self.estado.append(0)
+        self.grid.append(self.size) #ponto virtual acima
+        self.grid.append(self.size+1) #ponto virtual final
+        for el in range(grid_lado):
+            self.uni(el, self.size)
+            self.estado[el] = 1
+        for el in range(self.size-self.lado, self.size):
+            self.uni(el, self.size + 1)
+            self.estado[el] = 1
+
+
+    def root(self, site):
+        lista_procs = []
+        while self.grid[site] != site:
+            lista_procs.append(site)
+            site = self.grid[site]
+        for el in lista_procs:
+            self.grid[el] = site
+        return site
+
+    def con(self, p, q):
+        return self.root(p) == self.root(q)
+
+    def uni(self, p, q):
+        i = self.root(p)
+        j = self.root(q)
+        self.grid[i] = j
+
+    def vizinho(self, site):
+        lista = []
+        #cima
+        if site in range(0, self.lado):
+            pass
+        else:
+            lista.append(site - self.lado)
+
+        if site in range(self.size - self.lado, self.size):
+            pass
+        else:
+            lista.append(site + self.lado)
+
+        if site % self.lado != 0:
+            lista.append(site - 1)
+        else:
+            pass
+
+        if (site+1) % self.lado == 0:
+            pass
+        else:
+            lista.append(site + 1)
+
+        return(lista)
+
+    def info_e(self, site):
+        return self.estado[site]
+
+    def junta_grid(self, p, q):
+        if self.estado[p] == 1 and self.estado[q] == 1:
+            self.uni(p, q)
+
+    def aberto_per(self):
+        conta = 0
+        for el in self.estado:
+            if el == 1:
+                conta = conta + 1
+        return float(conta) / self.size
+
+    def simula(self, show = 0):
+        sorteados = []
+        while not self.con(self.size, self.size + 1):
+            site_da_vez = random.randrange(self.size)
+            if site_da_vez not in sorteados:
+                sorteados.append(site_da_vez)
+                self.estado[site_da_vez] = 1
+                for viz in self.vizinho(site_da_vez):
+                    if self.estado[viz] == 1:
+                        self.uni(site_da_vez, viz)
+                        if show == 0:
+                            pass
+                        else:
+                            print(self.show_grid(3))
+                            time.sleep(0.005)
+
+        return self.aberto_per()
+
+    def get_trans(self, el, tipo = 0):
+        if tipo == 0:
+            if self.estado[el] == 0:
+                return ' '
+            else:
+                return '+'
+        elif tipo == 1:
+            if self.estado[el] == 0:
+                return '[----]'
+            else:
+                return '(' + '{:^4}'.format(el) + ')'
+        elif tipo == 2:
+            if self.estado[el] == 0:
+                return '[----]'
+            else:
+                return '(' + '{:^4}'.format(self.grid[el]) + ')'
+        else:
+            if self.estado[el] == 0:
+                return '   '
+            else:
+                return '[o]'
+
+    def show_grid(self, tipo = 0):
+        str_grig = ''
+        for el in range(0, self.size):
+            if (el+1) % self.lado == 0:
+                str_grig = str_grig + self.get_trans(el, tipo) + '\n'
+            else:
+                str_grig = str_grig + self.get_trans(el, tipo)
+        return str_grig
+
+
+
+
+oi = testa(30)
+ui = oi.simula()
+print(ui)
+print(oi.show_grid(3))
